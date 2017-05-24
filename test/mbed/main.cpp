@@ -1,12 +1,16 @@
 #include <mbed.h>
 
 #include <frab/gpio.h>
+#include <frab/spi.h>
 
 using namespace frab;
 
 layer1::digital_out<NC> do1;
 layer1::digital_in<NC> di1;
 layer2::digital_io dio2(NC);
+
+hal::SPI spi(NC, NC, NC);
+//mbed::SPI spi(NC, NC, NC);
 
 int main()
 {
