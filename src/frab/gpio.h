@@ -74,6 +74,32 @@ public:
 */
 }
 
+namespace layer5 {
+
+template <class TTraits>
+class digital_in_base : public frab::digital_in_base<TTraits>
+{
+protected:
+    typedef TTraits traits_t;
+    typedef typename traits_t::gpio_type gpio_type;
+
+public:
+    virtual gpio_type read() = 0;
+};
+
+template <class TTraits>
+class digital_out_base : public frab::digital_out_base<TTraits>
+{
+protected:
+    typedef TTraits traits_t;
+    typedef typename traits_t::gpio_type gpio_type;
+
+public:
+    virtual void write(gpio_type value) = 0;
+};
+
+}
+
 }
 
 #ifdef __MBED__

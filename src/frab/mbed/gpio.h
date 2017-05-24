@@ -93,12 +93,19 @@ public:
 };
 
 
-class digital_io
+// TODO: might want to consider using the lower level spi calls
+// so that we can then inherit from either class
+class digital_io :
+        public digital_in_base<mbed_digital_in_traits>
+        //public digital_out_base<mbed_digital_out_traits>
 {
     DigitalInOut dio;
 
 public:
     digital_io(pin_t pin) : dio(pin) {}
+
+    gpio_type read() { return dio.read(); }
+    void write(gpio_type value) { dio.write(value); }
 };
 
 }
