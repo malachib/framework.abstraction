@@ -4,7 +4,7 @@
 
 int main()
 {
-    auto value = fabs::millis();
+    auto value = frab::millis();
     std::cout << "Hello, World!" << std::endl;
     return 0;
 }

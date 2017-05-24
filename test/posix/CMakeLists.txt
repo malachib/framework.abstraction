@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.7)
 project(fabs_test)
 
 # temporarily just to get things online
-ADD_DEFINITIONS(-D__MBED__)
+#ADD_DEFINITIONS(-D__MBED__)
 
 set(CMAKE_CXX_STANDARD 11)
 
