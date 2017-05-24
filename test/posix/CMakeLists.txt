@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.7)
-project(fabs_test)
+project(frab_test)
 
 # temporarily just to get things online
 #ADD_DEFINITIONS(-D__MBED__)
 
 set(CMAKE_CXX_STANDARD 11)
 
-file(GLOB framework_abstraction_source "framework.abstraction/fabs/*.cpp")
+file(GLOB framework_abstraction_source "framework.abstraction/frab/*.cpp")
 add_library(framework_abstraction "${framework_abstraction_source}")
 include_directories(framework.abstraction)
 #//add_library()
