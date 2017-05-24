@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <frab/systime.h>
+#include <frab/gpio.h>
 
 int main()
 {
