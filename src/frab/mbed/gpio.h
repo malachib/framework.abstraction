@@ -2,7 +2,7 @@
 
 #include <mbed.h>
 
-namespace frab {
+namespace framework_abstraction {
 
 /*
 namespace gpio {
@@ -116,26 +116,26 @@ public:
 namespace layer1 {
 
 template<pin_t pin>
-class digital_in : public frab::layer2::digital_in
+class digital_in : public framework_abstraction::layer2::digital_in
 {
 public:
-    digital_in() : frab::layer2::digital_in(pin) {}
+    digital_in() : framework_abstraction::layer2::digital_in(pin) {}
 };
 
 
 template<pin_t pin>
-class digital_out : public frab::layer2::digital_out
+class digital_out : public framework_abstraction::layer2::digital_out
 {
 public:
-    digital_out() : frab::layer2::digital_out(pin) {}
+    digital_out() : framework_abstraction::layer2::digital_out(pin) {}
 };
 
 
 template<pin_t pin>
-class digital_io : public frab::layer2::digital_io
+class digital_io : public framework_abstraction::layer2::digital_io
 {
 public:
-    digital_io() : frab::layer2::digital_io(pin) {}
+    digital_io() : framework_abstraction::layer2::digital_io(pin) {}
 };
 
 

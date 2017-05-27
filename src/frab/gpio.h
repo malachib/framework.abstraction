@@ -4,7 +4,7 @@
 #include <mbed.h>
 #endif
 
-namespace frab {
+namespace framework_abstraction {
 
 struct gpio
 {
@@ -77,7 +77,7 @@ public:
 namespace layer5 {
 
 template <class TTraits>
-class digital_in_base : public frab::digital_in_base<TTraits>
+class digital_in_base : public framework_abstraction::digital_in_base<TTraits>
 {
 protected:
     typedef TTraits traits_t;
@@ -88,7 +88,7 @@ public:
 };
 
 template <class TTraits>
-class digital_out_base : public frab::digital_out_base<TTraits>
+class digital_out_base : public framework_abstraction::digital_out_base<TTraits>
 {
 protected:
     typedef TTraits traits_t;

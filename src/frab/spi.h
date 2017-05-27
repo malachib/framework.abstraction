@@ -2,7 +2,7 @@
 
 #include "spi_context.h"
 
-namespace frab {
+namespace framework_abstraction {
 
 enum spi_modes
 {

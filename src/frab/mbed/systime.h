@@ -2,7 +2,7 @@
 
 #include <mbed.h>
 
-namespace frab {
+namespace framework_abstraction {
 
 // NOTE: this rolls over every 30 mins cuz it comes from us
 // but just to get things going we'll use it

@@ -3,7 +3,7 @@
 #include <frab/gpio.h>
 #include <frab/spi.h>
 
-using namespace frab;
+using namespace framework_abstraction;
 
 layer1::digital_out<NC> do1;
 layer1::digital_in<NC> di1;

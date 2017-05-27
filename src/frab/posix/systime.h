@@ -2,7 +2,7 @@
 
 #include <time.h>
 
-namespace frab {
+namespace framework_abstraction {
 
 
 inline uint32_t millis()

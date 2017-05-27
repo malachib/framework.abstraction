@@ -31,6 +31,6 @@ inline void SPI<mbed::SPI>::transfer(const T* tx_buffer, size_t tx_length, T* rx
 namespace hal
 {
 
-typedef frab::SPI<mbed::SPI> SPI;
+typedef framework_abstraction::SPI<mbed::SPI> SPI;
 
 }

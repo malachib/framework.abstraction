@@ -7,7 +7,7 @@
 #include <platform/Callback.h>
 #endif
 
-namespace frab
+namespace framework_abstraction
 {
 
 template <class TSPI>

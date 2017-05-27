@@ -9,7 +9,7 @@
 #include "posix/systime.h"
 #endif
 
-namespace frab
+namespace framework_abstraction
 {
 
 uint32_t millis();

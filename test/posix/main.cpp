@@ -3,6 +3,8 @@
 #include <frab/systime.h>
 #include <frab/gpio.h>
 
+namespace frab = framework_abstraction;
+
 int main()
 {
     auto value = frab::millis();

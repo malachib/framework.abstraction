@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 
-namespace frab {
+namespace framework_abstraction {
 
 uint32_t millis() { return ::millis(); }
 
