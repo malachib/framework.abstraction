@@ -104,4 +104,8 @@ public:
 
 #ifdef __MBED__
 #include "mbed/gpio.h"
+#elif defined(ESP_OPEN_RTOS)
+#include "esp-open-rtos/gpio.h"
+#elif defined(ARDUINO)
+//#include "arduino/gpio.h"
 #endif

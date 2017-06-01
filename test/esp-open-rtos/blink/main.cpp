@@ -12,6 +12,8 @@ extern "C" {
 #include "esp8266.h"
 }
 
+#include <frab/gpio.h>
+
 const int gpio = 2;
 
 /* This task uses the high level GPIO API (esp_gpio.h) to blink an LED.
