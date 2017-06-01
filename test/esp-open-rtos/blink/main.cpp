@@ -16,6 +16,25 @@ extern "C" {
 
 const int gpio = 2;
 
+namespace frab = framework_abstraction;
+
+/* This task uses my framework_abstraction to wrap up gpio calls
+ *
+ */
+void blinkenTaskFrab(void *pvParameters)
+{
+    frab::layer1::digital_out<2> dout;
+
+    while(1) {
+        dout.write(1);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        dout.write(0);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
+}
+
+
+
 /* This task uses the high level GPIO API (esp_gpio.h) to blink an LED.
  *
  */
@@ -59,6 +78,7 @@ void blinkenRegisterTask(void *pvParameters)
 extern "C" void user_init(void)
 {
     uart_set_baud(0, 115200);
-    xTaskCreate(blinkenTask, "blinkenTask", 256, NULL, 2, NULL);
+    xTaskCreate(blinkenTaskFrab, "blinkenTaskFrab", 256, NULL, 2, NULL);
+    //xTaskCreate(blinkenTask, "blinkenTask", 256, NULL, 2, NULL);
     //xTaskCreate(blinkenRegisterTask, "blinkenRegisterTask", 256, NULL, 2, NULL);
 }

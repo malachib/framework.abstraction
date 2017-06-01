@@ -23,6 +23,18 @@ struct gpio
         pull_none = PinMode::PullNone,
         open_drain = PinMode::OpenDrain
     };
+#elif defined(ESP_OPEN_RTOS)
+    enum digital_mode_t
+    {
+        pull_up,
+        open_drain
+    };
+
+    enum direction_t
+    {
+        input = ::gpio_direction_t::GPIO_INPUT,
+        output = ::gpio_direction_t::GPIO_OUTPUT
+    };
 #else
 #endif
 };
