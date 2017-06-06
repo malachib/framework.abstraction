@@ -1,0 +1,1 @@
+ext/useful-scripts/embedded/esp-open-rtos/docker-env.sh
