@@ -23,13 +23,17 @@ namespace frab = framework_abstraction;
  */
 void blinkenTaskFrab(void *pvParameters)
 {
-    frab::layer1::digital_out<2> dout;
+    static int counter = 0;
+
+    frab::layer1::digital_out<gpio> dout;
 
     while(1) {
         dout.write(1);
         vTaskDelay(1000 / portTICK_PERIOD_MS);
         dout.write(0);
         vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+        printf("Blinking: %d\r\n", counter++);
     }
 }
 
@@ -78,7 +82,7 @@ void blinkenRegisterTask(void *pvParameters)
 extern "C" void user_init(void)
 {
     uart_set_baud(0, 115200);
-    xTaskCreate(blinkenTaskFrab, "blinkenTaskFrab", 256, NULL, 2, NULL);
-    //xTaskCreate(blinkenTask, "blinkenTask", 256, NULL, 2, NULL);
+    //xTaskCreate(blinkenTaskFrab, "blinkenTaskFrab", 256, NULL, 2, NULL);
+    xTaskCreate(blinkenTask, "blinkenTask", 256, NULL, 2, NULL);
     //xTaskCreate(blinkenRegisterTask, "blinkenRegisterTask", 256, NULL, 2, NULL);
 }
