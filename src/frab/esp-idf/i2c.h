@@ -31,10 +31,11 @@ public:
         i2c_master_start(cmd);
     }
 
+    /*
     i2c_tx_master(const i2c_tx_master&& move_from)
     {
         cmd = move_from.cmd;
-    }
+    } */
 
     // TODO: return proper unified error code
     inline void write(uint8_t data, bool expect_ack = true)
@@ -74,6 +75,13 @@ public:
         return i2c_master_cmd_begin(bus, cmd, 1000/portTICK_PERIOD_MS) == ESP_OK;
     }
 
+/*
+    // Need this 'cause we don't have in place destructors. lame
+    inline void release()
+    {
+        i2c_cmd_link_delete(cmd);
+    } */
+
     ~i2c_tx_master()
     {
         i2c_cmd_link_delete(cmd);
@@ -96,11 +104,17 @@ public:
         i2c_driver_delete(bus);
     }
 
+    template <bool autocommit = false>
     struct tx : public i2c_tx_master
     {
         inline bool commit()
         {
             return i2c_tx_master::commit(bus);
+        }
+
+        ~tx()
+        {
+            if(autocommit) commit();
         }
     };
 
@@ -120,15 +134,33 @@ public:
         i2c_driver_install(bus, I2C_MODE_MASTER, 0, 0, 0);
     }
 
-    inline tx tx_begin_experimental()
+    inline tx<> tx_begin_experimental()
     {
-        return tx();
+        return tx<>();
+    }
+
+    inline tx<> tx_begin_experimental(uint8_t addr)
+    {
+        tx<> t;
+
+        t.addr(addr);
+
+        return t;
+    }
+
+    inline tx<true> tx_begin_autocommit_experimental(uint8_t addr)
+    {
+        tx<true> t;
+
+        t.addr(addr);
+
+        return t;
     }
 
     // TODO: return proper unified return code
     inline bool write(uint8_t data, bool expect_ack = true)
     {
-        tx t;
+        tx<> t;
 
         t.write(data, expect_ack);
         return t.commit();
@@ -137,7 +169,7 @@ public:
     // TODO: return proper unified return code
     inline bool write(uint8_t* data, size_t len, bool expect_ack = true)
     {
-        tx t;
+        tx<> t;
 
         t.write(data, len, expect_ack);
         return t.commit();
