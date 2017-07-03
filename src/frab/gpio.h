@@ -41,6 +41,8 @@ struct gpio
 
 #ifdef __MBED__
 typedef PinName pin_t;
+#elif ESP_PLATFORM
+typedef gpio_num_t pin_t;
 #else
 typedef int pin_t;
 #endif
