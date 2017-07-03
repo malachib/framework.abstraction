@@ -3,6 +3,8 @@
 extern "C" {
 
 #include "driver/i2c.h"
+#include <stddef.h>
+
 }
 
 namespace framework_abstraction {
@@ -34,15 +36,42 @@ public:
         cmd = move_from.cmd;
     }
 
-    void write(uint8_t data)
+    // TODO: return proper unified error code
+    inline void write(uint8_t data, bool expect_ack = true)
     {
-        i2c_master_write_byte(cmd, data, true); // true = ack requested
+        i2c_master_write_byte(cmd, data, expect_ack); // true = ack requested
     }
 
-    void commit(i2c_bus_t bus)
+
+    inline void write(uint8_t* data, size_t len, bool expected_ack = true)
+    {
+        i2c_master_write(cmd, data, len, expected_ack);
+    }
+
+
+    // EXPERIMENTAL
+    inline void addr(uint8_t data, bool is_write_mode = true, bool expect_ack = true)
+    {
+        write(
+            (data << 1) | (is_write_mode ? I2C_MASTER_WRITE : I2C_MASTER_READ),
+            expect_ack);
+    }
+
+    inline void read(uint8_t* data, bool expect_ack = true)
+    {
+        i2c_master_read_byte(cmd, data, expect_ack);
+    }
+
+    inline void read(uint8_t* data, size_t len, bool expect_ack = true)
+    {
+        i2c_master_read(cmd, data, len, expect_ack);
+    }
+
+    // TODO: return proper unified error code
+    bool commit(i2c_bus_t bus)
     {
         i2c_master_stop(cmd);
-        i2c_master_cmd_begin(bus, cmd, 1000/portTICK_PERIOD_MS);
+        return i2c_master_cmd_begin(bus, cmd, 1000/portTICK_PERIOD_MS) == ESP_OK;
     }
 
     ~i2c_tx_master()
@@ -62,6 +91,20 @@ protected:
     }
 
 public:
+    ~i2c()
+    {
+        i2c_driver_delete(bus);
+    }
+
+    struct tx : public i2c_tx_master
+    {
+        inline bool commit()
+        {
+            return i2c_tx_master::commit(bus);
+        }
+    };
+
+    // FIX: decide on naming whether we want config/start/begin etc.
     void config(uint32_t clock_speed)
     {
         ::i2c_config_t native_config;
@@ -77,17 +120,27 @@ public:
         i2c_driver_install(bus, I2C_MODE_MASTER, 0, 0, 0);
     }
 
-    i2c_tx_master tx_begin_experimental()
+    inline tx tx_begin_experimental()
     {
-        return i2c_tx_master();
+        return tx();
     }
 
-    void write(uint8_t data)
+    // TODO: return proper unified return code
+    inline bool write(uint8_t data, bool expect_ack = true)
     {
-        i2c_tx_master tx;
+        tx t;
 
-        tx.write(data);
-        tx.commit(bus);
+        t.write(data, expect_ack);
+        return t.commit();
+    }
+
+    // TODO: return proper unified return code
+    inline bool write(uint8_t* data, size_t len, bool expect_ack = true)
+    {
+        tx t;
+
+        t.write(data, len, expect_ack);
+        return t.commit();
     }
 
 };
