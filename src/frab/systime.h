@@ -6,6 +6,8 @@
 #include "mbed/systime.h"
 #elif defined(ESP_OPEN_RTOS)
 #include "esp-open-rtos/systime.h"
+#elif defined(ESP_PLATFORM)
+// TODO:
 #else
 //#elif __POSIX__
 #include "posix/systime.h"

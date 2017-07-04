@@ -2,6 +2,8 @@
 
 #ifdef __MBED__
 #include <mbed.h>
+#elif defined(ESP_PLATFORM)
+#include <driver/gpio.h>
 #endif
 
 namespace framework_abstraction {
@@ -64,7 +66,7 @@ struct gpio_traits
 };
 
 
-#elif ESP_PLATFORM
+#elif defined(ESP_PLATFORM)
 typedef gpio_num_t pin_t;
 
 struct gpio_traits
@@ -116,10 +118,11 @@ template<class TTraits = gpio_traits>
 class digital_in_base_new //: public framework_abstraction::digital_in_base<TTraits>
 {
     typedef typename TTraits::context_in_t context_t;
+    typedef const context_t& context_reference;
     typedef typename TTraits::value_t value_t;
 
 protected:
-    static value_t read(context_t& context);
+    static value_t read(context_reference context);
 };
 
 
@@ -127,10 +130,11 @@ template<class TTraits = gpio_traits>
 class digital_out_base_new //: public framework_abstraction::digital_out_base<TTraits>
 {
     typedef typename TTraits::context_out_t context_t;
+    typedef const context_t& context_reference;
     typedef typename TTraits::value_t value_t;
 
 protected:
-    static void write(context_t& context, value_t value);
+    static void write(context_reference context, value_t value);
 };
 
 
@@ -210,6 +214,8 @@ public:
 #include "mbed/gpio.h"
 #elif defined(ESP_OPEN_RTOS)
 #include "esp-open-rtos/gpio.h"
+#elif defined(ESP_PLATFORM)
+#include "esp-idf/gpio.h"
 #elif defined(ARDUINO)
 //#include "arduino/gpio.h"
 #endif
