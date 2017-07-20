@@ -69,10 +69,10 @@ public:
     }
 
     // TODO: return proper unified error code
-    bool commit(i2c_bus_t bus)
+    bool commit(i2c_bus_t bus, uint32_t timeout_ms = 1000)
     {
         i2c_master_stop(cmd);
-        return i2c_master_cmd_begin(bus, cmd, 1000/portTICK_PERIOD_MS) == ESP_OK;
+        return i2c_master_cmd_begin(bus, cmd, timeout_ms/portTICK_PERIOD_MS) == ESP_OK;
     }
 
 /*
@@ -134,12 +134,12 @@ public:
         i2c_driver_install(bus, I2C_MODE_MASTER, 0, 0, 0);
     }
 
-    inline tx<> tx_begin_experimental()
+    inline tx<> get_tx()
     {
         return tx<>();
     }
 
-    inline tx<> tx_begin_experimental(uint8_t addr)
+    inline tx<> get_tx(uint8_t addr)
     {
         tx<> t;
 
@@ -148,7 +148,7 @@ public:
         return t;
     }
 
-    inline tx<true> tx_begin_autocommit_experimental(uint8_t addr)
+    inline tx<true> get_tx_auto(uint8_t addr)
     {
         tx<true> t;
 
