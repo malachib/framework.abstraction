@@ -152,6 +152,8 @@ public:
     {
         tx<true> t;
 
+        // TODO: do we need to do this before each command?
+        // look up i2c spec
         t.addr(addr);
 
         return t;
