@@ -19,10 +19,11 @@ public:
         return * reinterpret_cast<T*>((uint8_t*)buffer);
     }
 
-    T& construct()
+    template <class ...TArgs>
+    T& construct(TArgs...args)
     {
         //T* existing = reinterpret_cast<T>(buffer);
-        T* value = new(buffer) T();
+        T* value = new(buffer) T(args...);
         return *value;
     }
 

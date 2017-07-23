@@ -25,10 +25,11 @@ class i2c_tx_master
 
 public:
     // TODO: scope this to only be accessible by our i2c classes
-    i2c_tx_master()
+    i2c_tx_master(bool auto_start_experimental = true)
     {
         cmd = i2c_cmd_link_create();
-        i2c_master_start(cmd);
+        if(auto_start_experimental)
+            i2c_master_start(cmd);
     }
 
     /*
@@ -49,6 +50,11 @@ public:
         i2c_master_write(cmd, data, len, expected_ack);
     }
 
+    inline void repeat_start_experimental()
+    {
+        i2c_master_start(cmd);
+    }
+
 
     // EXPERIMENTAL
     inline void addr(uint8_t data, bool is_write_mode = true, bool expect_ack = true)
@@ -66,6 +72,12 @@ public:
     inline void read(uint8_t* data, size_t len, bool expect_ack = true)
     {
         i2c_master_read(cmd, data, len, expect_ack);
+    }
+
+    // TODO: return proper unified error code
+    bool commit_without_stop_experimental(i2c_bus_t bus, uint32_t timeout_ms = 1000)
+    {
+        return i2c_master_cmd_begin(bus, cmd, timeout_ms/portTICK_PERIOD_MS) == ESP_OK;
     }
 
     // TODO: return proper unified error code
