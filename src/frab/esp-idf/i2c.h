@@ -7,6 +7,10 @@ extern "C" {
 
 }
 
+#include "esp_err.h"
+#include "esp_log.h"
+
+
 namespace framework_abstraction {
 
 typedef i2c_port_t i2c_bus_t;
@@ -16,6 +20,8 @@ struct i2c_config_t
     // FIX: master mode code
     uint32_t clock_speed;
 };
+
+#define I2C_TAG "frab::i2c"
 
 namespace layer1 {
 
@@ -27,6 +33,8 @@ public:
     // TODO: scope this to only be accessible by our i2c classes
     i2c_tx_master(bool auto_start_experimental = true)
     {
+        ESP_LOGV(I2C_TAG, "Constructing TX");
+
         cmd = i2c_cmd_link_create();
         if(auto_start_experimental)
             i2c_master_start(cmd);
@@ -96,6 +104,8 @@ public:
 
     ~i2c_tx_master()
     {
+        ESP_LOGV(I2C_TAG, "Destroying TX");
+
         i2c_cmd_link_delete(cmd);
     }
 };
