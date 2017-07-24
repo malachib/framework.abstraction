@@ -27,11 +27,21 @@ public:
         return *value;
     }
 
-    void destruct()
+    void destroy()
     {
         // Have to do this because C++ doesn't have a placement delete
         //get().release();
         get().~T();
+    }
+
+    // DEPRECATED
+    void destruct() { destroy(); }
+
+    template <class ...TArgs>
+    T& recycle(TArgs...args)
+    {
+        destroy();
+        return construct(args...);
     }
 };
 
