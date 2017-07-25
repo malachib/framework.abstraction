@@ -152,7 +152,9 @@ public:
         i2c_driver_delete(bus);
     }
 
-    template <bool autocommit = false>
+    // TODO: Make auto_send default to false, as some platforms
+    // will not have send queuing as a feature
+    template <bool auto_stop = false, bool auto_send = false>
     struct tx : public i2c_tx_master
     {
         inline bool send(uint32_t timeout_ms = traits_experimental::command_timeout_ms)
@@ -167,7 +169,8 @@ public:
 
         ~tx()
         {
-            if(autocommit) commit();
+            if(auto_stop)   stop();
+            if(auto_send)   send();
         }
     };
 
@@ -187,12 +190,15 @@ public:
         i2c_driver_install(bus, I2C_MODE_MASTER, 0, 0, 0);
     }
 
-    inline tx<> get_tx()
+    // Non auto committing TX is now experimental, since some
+    // platforms won't have command queuing and therefore everything is
+    // implicitly autocomitted for them
+    inline tx<> get_tx_manual_experimental()
     {
         return tx<>();
     }
 
-    inline tx<> get_tx(uint8_t addr)
+    inline tx<> get_tx_manual_experimental(uint8_t addr)
     {
         tx<> t;
 
@@ -201,9 +207,9 @@ public:
         return t;
     }
 
-    inline tx<true> get_tx_auto(uint8_t addr)
+    inline tx<true, true> get_tx(uint8_t addr)
     {
-        tx<true> t;
+        tx<true, true> t;
 
         // TODO: do we need to do this before each command?
         // look up i2c spec
