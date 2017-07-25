@@ -19,6 +19,8 @@ public:
         return * reinterpret_cast<T*>((uint8_t*)buffer);
     }
 
+    operator T&() const { return get(); }
+
     template <class ...TArgs>
     T& construct(TArgs...args)
     {
