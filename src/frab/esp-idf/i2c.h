@@ -48,6 +48,11 @@ public:
         static constexpr uint32_t command_timeout_ms = 1000;  
     };
 
+    i2c_tx_master(i2c_tx_master&& move_from)
+    {
+        cmd = move_from.cmd;
+    }
+
     // TODO: scope this to only be accessible by our i2c classes
     i2c_tx_master(bool auto_start_experimental = true)
     {
@@ -157,6 +162,10 @@ public:
     template <bool auto_stop = false, bool auto_send = false>
     struct tx : public i2c_tx_master
     {
+        tx(tx&& move_from) : i2c_tx_master(move_from) {}
+
+        tx() {}
+        
         inline bool send(uint32_t timeout_ms = traits_experimental::command_timeout_ms)
         {
             return i2c_tx_master::send(bus, timeout_ms);
@@ -207,9 +216,13 @@ public:
         return t;
     }
 
-    inline tx<true, true> get_tx(uint8_t addr)
+    // NOTE: Move constructor should be kicking in, avoiding
+    // destruct phase on return t.  Feels a little sloppy, I wish
+    // there was an explicit marker for this
+    template <bool auto_stop = true>
+    inline tx<auto_stop, true> get_tx(uint8_t addr)
     {
-        tx<true, true> t;
+        tx<auto_stop, true> t;
 
         // TODO: do we need to do this before each command?
         // look up i2c spec
@@ -219,7 +232,7 @@ public:
     }
 
     // TODO: return proper unified return code
-    inline bool write(uint8_t data, bool expect_ack = true)
+    inline bool write_experimental(uint8_t data, bool expect_ack = true)
     {
         tx<> t;
 
@@ -228,7 +241,7 @@ public:
     }
 
     // TODO: return proper unified return code
-    inline bool write(uint8_t* data, size_t len, bool expect_ack = true)
+    inline bool write_experimental(uint8_t* data, size_t len, bool expect_ack = true)
     {
         tx<> t;
 
