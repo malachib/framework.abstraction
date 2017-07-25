@@ -36,13 +36,13 @@ protected:
         i2c_master_start(cmd);
     }
 
+public:
     // queue up stop condition
     inline void stop()
     {
         i2c_master_stop(cmd);
     }
 
-public:
     struct traits_experimental
     {
         static constexpr uint32_t command_timeout_ms = 1000;  
