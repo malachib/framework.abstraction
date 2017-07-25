@@ -29,7 +29,25 @@ class i2c_tx_master
 {
     i2c_cmd_handle_t cmd;
 
+protected:
+    // queue up start condition
+    inline void start()
+    {
+        i2c_master_start(cmd);
+    }
+
+    // queue up stop condition
+    inline void stop()
+    {
+        i2c_master_stop(cmd);
+    }
+
 public:
+    struct traits_experimental
+    {
+        static constexpr uint32_t command_timeout_ms = 1000;  
+    };
+
     // TODO: scope this to only be accessible by our i2c classes
     i2c_tx_master(bool auto_start_experimental = true)
     {
@@ -37,7 +55,7 @@ public:
 
         cmd = i2c_cmd_link_create();
         if(auto_start_experimental)
-            i2c_master_start(cmd);
+            start();
     }
 
     /*
@@ -83,7 +101,7 @@ public:
     }
 
     // TODO: return proper unified error code
-    bool commit_without_stop_experimental(i2c_bus_t bus, uint32_t timeout_ms = 1000)
+    bool send(i2c_bus_t bus, uint32_t timeout_ms = 1000)
     {
         return i2c_master_cmd_begin(bus, cmd, timeout_ms/portTICK_PERIOD_MS) == ESP_OK;
     }
@@ -91,8 +109,8 @@ public:
     // TODO: return proper unified error code
     bool commit(i2c_bus_t bus, uint32_t timeout_ms = 1000)
     {
-        i2c_master_stop(cmd);
-        return i2c_master_cmd_begin(bus, cmd, timeout_ms/portTICK_PERIOD_MS) == ESP_OK;
+        stop();
+        return send(bus, timeout_ms);
     }
 
 /*
@@ -110,8 +128,14 @@ public:
     }
 };
 
+
+struct i2c_traits
+{
+    
+};
+
 // FIX: this is all hardwired to i2c master
-template <i2c_bus_t bus, gpio_num_t pin_sda, gpio_num_t pin_sdl>
+template <i2c_bus_t bus, gpio_num_t pin_sda, gpio_num_t pin_sdl, class TTraits = i2c_traits>
 class i2c
 {
 protected:
@@ -121,6 +145,8 @@ protected:
     }
 
 public:
+    typedef TTraits traits;
+
     ~i2c()
     {
         i2c_driver_delete(bus);
@@ -129,9 +155,14 @@ public:
     template <bool autocommit = false>
     struct tx : public i2c_tx_master
     {
-        inline bool commit()
+        inline bool send(uint32_t timeout_ms = traits_experimental::command_timeout_ms)
         {
-            return i2c_tx_master::commit(bus);
+            return i2c_tx_master::send(bus, timeout_ms);
+        }
+
+        inline bool commit(uint32_t timeout_ms = traits_experimental::command_timeout_ms)
+        {
+            return i2c_tx_master::commit(bus, timeout_ms);
         }
 
         ~tx()
