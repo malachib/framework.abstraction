@@ -152,7 +152,7 @@ public:
         i2c_driver_delete(bus);
     }
 
-    // TODO: Make auto_send default to false, as some platforms
+    // TODO: Make auto_send default to true, as some platforms
     // will not have send queuing as a feature
     template <bool auto_stop = false, bool auto_send = false>
     struct tx : public i2c_tx_master
