@@ -1,1 +1,0 @@
-../../ext/useful-scripts/embedded/mbed/build.sh
