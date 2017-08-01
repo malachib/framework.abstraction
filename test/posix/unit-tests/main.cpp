@@ -1,9 +1,2 @@
-#include <iostream>
-
-#include <frab/systime.h>
-
-int main()
-{
-    std::cout << "Hello, World!" << std::endl;
-    return 0;
-}
+#define CATCH_CONFIG_MAIN // This tells Catch to provide a main() - only do this in one cpp file
+#include "catch.hpp"

@@ -21,8 +21,8 @@ class placement_helper
     template<typename> struct int_ { typedef int type; };
 
     // if explicit recycle method exists, call it
-    template<typename int_<decltype(T::recycle())>::type = 0>
-    bool recycle_helper(special_)
+    template<class _T, typename int_<decltype(_T::recycle())>::type = 0>
+    bool recycle_helper(_T& ignored, special_)
     {
         get().recycle();
         return true;
@@ -30,8 +30,8 @@ class placement_helper
 
     // otherwise, do a standard destroy/construct phase (which may require
     // constructor arguments)
-    template <class ...TArgs>
-    bool recycle_helper(general_, TArgs...args)
+    template <class _T, class ...TArgs>
+    bool recycle_helper(_T& ignored, general_, TArgs...args)
     {
         destroy();
         construct(args...);
@@ -68,8 +68,8 @@ public:
     T& recycle(TArgs...args)
     {
 #ifdef EXPERIMENTAL_PLACEMENT_RECYCLE
-        recycle_helper(special_(), args...);
-        return this;
+        recycle_helper(get(), special_(), args...);
+        return get();
 #else
         destroy();
         return construct(args...);
