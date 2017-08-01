@@ -9,10 +9,6 @@
 
 namespace framework_abstraction {
 
-namespace layer1 {
-
-}
-
 namespace layer2 {
 
 // TODO: most mbed i2c operations handle address as part of the call
@@ -109,5 +105,22 @@ public:
 };
 
 }
+
+namespace layer1 {
+
+template <PinName sda, PinName scl>
+class i2c
+{
+    layer2::i2c layer2;
+
+public:
+    class tx : layer2::i2c_tx
+    {
+        
+    };
+};
+
+}
+
 
 }
