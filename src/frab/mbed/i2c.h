@@ -5,7 +5,8 @@
 // TODO: decide how we want to distinguish i2c master vs
 // i2c slave classes (outside of tx classes)
 // framework-abstracted gpio stuff, including pin_t
-//#include "gpio.h" // not ready for direct-include just yet
+#include "../gpio.h" // not ready for direct-include just yet
+#include "../i2c.h"  // yes this goes in a circle - just in case we include mbed/i2c.h directly
 
 namespace framework_abstraction {
 
@@ -66,9 +67,6 @@ class i2c
     // all this to layer5
     mbed::I2C native;
 
-    // FIX: do this instead by pulling in gpio.h, when we can
-    typedef PinName pin_t;
-
 public:
     // FIX: decide on naming whether we want config/start/begin etc.
     void config(uint32_t clock_speed)
@@ -96,11 +94,11 @@ public:
 
     // FIX: resolve method signature mismatch with esp-idf flavor, then upgrade
     // to non-experimental status
-    inline bool write_experimental(uint8_t addr, const uint8_t* data, size_t length, bool expect_ack = true)
+    inline i2c_experimental::acknowledge_code_t write_experimental(uint8_t addr, const uint8_t* data, size_t length, bool repeated = false)
     {
-        int nack_received = native.write(addr << 1, reinterpret_cast<const char*>(data), length);
+        int nack_received = native.write(addr << 1, reinterpret_cast<const char*>(data), length, repeated);
 
-        return expect_ack == !nack_received;
+        return nack_received ? i2c_experimental::nack : i2c_experimental::ack;
     }
 };
 
@@ -108,7 +106,7 @@ public:
 
 namespace layer1 {
 
-template <PinName sda, PinName scl>
+template <pin_t sda, pin_t scl>
 class i2c
 {
     layer2::i2c layer2;
