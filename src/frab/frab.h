@@ -7,11 +7,36 @@ namespace framework_abstraction {
 
 namespace experimental {
 
+#define EXPERIMENTAL_PLACEMENT_RECYCLE 
+
 // TODO: pass in "release function"
 template <class T>
 class placement_helper
 {
     uint8_t buffer[sizeof(T)];
+
+    // Adapted from https://stackoverflow.com/questions/13786888/check-if-member-exists-using-enable-if
+    struct general_ {};
+    struct special_ : general_ {};
+    template<typename> struct int_ { typedef int type; };
+
+    // if explicit recycle method exists, call it
+    template<typename int_<decltype(T::recycle())>::type = 0>
+    bool recycle_helper(special_)
+    {
+        get().recycle();
+        return true;
+    }
+
+    // otherwise, do a standard destroy/construct phase (which may require
+    // constructor arguments)
+    template <class ...TArgs>
+    bool recycle_helper(general_, TArgs...args)
+    {
+        destroy();
+        construct(args...);
+        return false;
+    }
 
 public:
     inline T& get() const
@@ -42,8 +67,13 @@ public:
     template <class ...TArgs>
     T& recycle(TArgs...args)
     {
+#ifdef EXPERIMENTAL_PLACEMENT_RECYCLE
+        recycle_helper(special_(), args...);
+        return this;
+#else
         destroy();
         return construct(args...);
+#endif
     }
 };
 
