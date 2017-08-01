@@ -2,6 +2,8 @@
 
 #include <mbed.h>
 
+// TODO: decide how we want to distinguish i2c master vs
+// i2c slave classes (outside of tx classes)
 // framework-abstracted gpio stuff, including pin_t
 //#include "gpio.h" // not ready for direct-include just yet
 
@@ -72,6 +74,12 @@ class i2c
     typedef PinName pin_t;
 
 public:
+    // FIX: decide on naming whether we want config/start/begin etc.
+    void config(uint32_t clock_speed)
+    {
+        native.frequency(clock_speed);
+    }
+
     i2c(pin_t sda, pin_t scl) : native(sda, scl) {}
 
     i2c_tx get_tx_experimental()
@@ -79,6 +87,24 @@ public:
         i2c_tx tx(native);
 
         return tx;
+    }
+
+    struct traits
+    {
+        struct experimental
+        {
+            static constexpr bool is_tx_preferred() { return false; }
+        };
+    };
+
+
+    // FIX: resolve method signature mismatch with esp-idf flavor, then upgrade
+    // to non-experimental status
+    inline bool write_experimental(uint8_t addr, const uint8_t* data, size_t length, bool expect_ack = true)
+    {
+        int nack_received = native.write(addr << 1, reinterpret_cast<const char*>(data), length);
+
+        return expect_ack == !nack_received;
     }
 };
 

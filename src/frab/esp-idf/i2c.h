@@ -136,7 +136,10 @@ public:
 
 struct i2c_traits
 {
-    
+    struct experimental
+    {
+        static constexpr bool is_tx_preferred() { return true; }
+    };
 };
 
 // FIX: this is all hardwired to i2c master
