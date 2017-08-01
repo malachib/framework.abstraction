@@ -235,19 +235,22 @@ public:
     }
 
     // TODO: return proper unified return code
-    inline bool write_experimental(uint8_t data, bool expect_ack = true)
+    inline bool write_experimental(uint8_t addr, uint8_t data, bool expect_ack = true)
     {
         tx<> t;
 
+        t.addr(addr);
         t.write(data, expect_ack);
         return t.commit();
     }
 
-    // TODO: return proper unified return code
-    inline bool write_experimental(uint8_t* data, size_t len, bool expect_ack = true)
+    // TODO: return proper unified return code (using i2c_experimental::acknowledge_code_t)
+    // TODO: along with above, change expect_ack to repeated
+    inline bool write_experimental(uint8_t addr, uint8_t* data, size_t len, bool expect_ack = true)
     {
         tx<> t;
 
+        t.addr(addr);
         t.write(data, len, expect_ack);
         return t.commit();
     }

@@ -27,7 +27,10 @@ class i2c_tx
     }
 
 public:
-    i2c_tx(mbed::I2C& native) : native(native) {}
+    i2c_tx(mbed::I2C& native) : native(native) 
+    {
+        start();
+    }
 
     i2c_tx(i2c_tx&& move_from) : native(move_from.native)
     {
@@ -40,14 +43,14 @@ public:
         native.start();
     }
 
-    inline void write(uint8_t data)
+    inline void write(uint8_t data, bool expect_ack = true)
     {
         native.write(data);
     }
 
     // TODO: attempt to optimize this, but so far all bulk transfer commands
     // for mbed take address as a prepended parameter
-    inline void write(const uint8_t* data, size_t length)
+    inline void write(const uint8_t* data, size_t length, bool expect_ack = true)
     {
         while(length--)
             write(*data++);
@@ -58,6 +61,17 @@ public:
     inline void addr(uint8_t data, bool is_write_mode = true)
     {
         write((data << 1) | (is_write_mode ? 0 : 1));
+    }
+
+    void send()
+    {
+        // NOOP, since writes aren't queued
+    }
+
+    void commit()
+    {
+        send();
+        stop();
     }
 };
 
