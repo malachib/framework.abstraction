@@ -20,9 +20,10 @@ class placement_helper
     struct special_ : general_ {};
     template<typename> struct int_ { typedef int type; };
 
+    // FIX: this isn't working, this recycle helper never gets called
     // if explicit recycle method exists, call it
     template<class _T, typename int_<decltype(_T::recycle())>::type = 0>
-    bool recycle_helper(_T& ignored, special_)
+    bool recycle_helper(_T&& ignored, special_)
     {
         get().recycle();
         return true;
@@ -31,12 +32,21 @@ class placement_helper
     // otherwise, do a standard destroy/construct phase (which may require
     // constructor arguments)
     template <class _T, class ...TArgs>
-    bool recycle_helper(_T& ignored, general_, TArgs...args)
+    bool recycle_helper(_T&& ignored, general_, TArgs...args)
     {
         destroy();
         construct(args...);
         return false;
     }
+
+    /* Doesn't help make special_ flavor of recycle get called
+    template <class _T>
+    bool recycle_helper(_T&& ignored, general_)
+    {
+        destroy();
+        construct();
+        return false;
+    } */
 
 public:
     inline T& get() const
