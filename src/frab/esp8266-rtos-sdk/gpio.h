@@ -22,8 +22,15 @@ template <pin_t pin>
 class digital_in
 {
 public:
-    static void read(bool value) { GPIO_INPUT_GET(pin); }
+    static bool read(bool value) { return GPIO_INPUT_GET(pin); }
 };
+
+}
+
+
+namespace layer2 {
+
+
 
 }
 
