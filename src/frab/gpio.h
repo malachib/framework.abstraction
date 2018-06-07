@@ -37,7 +37,9 @@ struct gpio
         input = ::gpio_direction_t::GPIO_INPUT,
         output = ::gpio_direction_t::GPIO_OUTPUT
     };
-#elif defined(ESP_PLATFORM)
+#elif defined(ESP32) && defined(IDF_VER)
+// pretty sure this only comes here in the PIO variant.  Don't know how to
+// determine ESP32 vs ESP8266 IDF yet
     enum direction_t
     {
         input = GPIO_MODE_DEF_INPUT,
@@ -50,7 +52,22 @@ struct gpio
         pull_down,
         open_drain
     };
+#elif defined(IDF_VER)
+// deducing ESP8266... hopefully
+// copy paste from ESP_OPEN_RTOS just for testing.  Consolidate if we can
+    enum digital_mode_t
+    {
+        pull_up,
+        open_drain
+    };
+
+    enum direction_t
+    {
+        input = GPIO_Mode_Input,
+        output = GPIO_Mode_Output
+    };
 #else
+#error Unsupported Architecture
 #endif
 };
 
@@ -67,15 +84,20 @@ struct gpio_traits
 
 
 #elif defined(ESP_PLATFORM)
-typedef gpio_num_t pin_t;
 
 struct gpio_traits
 {
+#ifdef ESP32
     typedef gpio_num_t pin_t;
+#else   // FIX: deducing ESP8266
+    typedef uint8_t pin_t;
+#endif
     typedef pin_t context_in_t;
     typedef pin_t context_out_t;
     typedef int value_t;
 };
+
+typedef gpio_traits::pin_t pin_t;
 
 #else
 typedef int pin_t;
@@ -214,8 +236,10 @@ public:
 #include "mbed/gpio.h"
 #elif defined(ESP_OPEN_RTOS)
 #include "esp-open-rtos/gpio.h"
-#elif defined(ESP_PLATFORM)
+#elif defined(ESP_PLATFORM) && defined(ESP32)
 #include "esp-idf/gpio.h"
+#elif defined(ESP_PLATFORM) // FIX: deduced ESP8266, but shaky
+#include "esp8266-rtos-sdk/gpio.h"
 #elif defined(ARDUINO)
 //#include "arduino/gpio.h"
 #endif
