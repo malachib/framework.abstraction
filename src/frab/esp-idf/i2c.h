@@ -70,15 +70,19 @@ public:
     } */
 
     // TODO: return proper unified error code
+    // fix as per https://github.com/nkolban/esp32-snippets/issues/321
+    // but we need better ack observation
     inline void write(uint8_t data, bool expect_ack = true)
     {
-        i2c_master_write_byte(cmd, data, expect_ack); // true = ack requested
+        i2c_master_write_byte(cmd, data, expect_ack ?
+            i2c_ack_type_t::I2C_MASTER_ACK : i2c_ack_type_t::I2C_MASTER_NACK); // true = ack requested
     }
 
 
     inline void write(uint8_t* data, size_t len, bool expected_ack = true)
     {
-        i2c_master_write(cmd, data, len, expected_ack);
+        i2c_master_write(cmd, data, len, expected_ack ?
+            i2c_ack_type_t::I2C_MASTER_ACK : i2c_ack_type_t::I2C_MASTER_NACK);
     }
 
     inline void repeat_start_experimental()
@@ -97,12 +101,14 @@ public:
 
     inline void read(uint8_t* data, bool expect_ack = true)
     {
-        i2c_master_read_byte(cmd, data, expect_ack);
+        i2c_master_read_byte(cmd, data, expect_ack ?
+            i2c_ack_type_t::I2C_MASTER_ACK : i2c_ack_type_t::I2C_MASTER_NACK);
     }
 
     inline void read(uint8_t* data, size_t len, bool expect_ack = true)
     {
-        i2c_master_read(cmd, data, len, expect_ack);
+        i2c_master_read(cmd, data, len, expect_ack ?
+            i2c_ack_type_t::I2C_MASTER_ACK : i2c_ack_type_t::I2C_MASTER_NACK);
     }
 
     // TODO: return proper unified error code
