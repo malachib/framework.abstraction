@@ -79,6 +79,10 @@ public:
     void frequency(int32_t hz = 1000000);
     void begin();
     void end();
+
+    // perhaps instead of begin/end we can synchronize periodically.  Note
+    // the whole queuing notion is a bit on its head if doing 'transfer' exclusively
+    void sync_experimental();
 };
 
 #ifdef __MBED__

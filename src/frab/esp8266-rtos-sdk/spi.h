@@ -38,6 +38,12 @@ inline SPI<SpiNum>::SPI()
 }
 */
 
+template <>
+inline void SPI<SpiNum>::begin()
+{
+
+}
+
 
 template <>
 inline int SPI<SpiNum>::transfer(uint16_t data)
