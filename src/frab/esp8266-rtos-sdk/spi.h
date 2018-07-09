@@ -1,13 +1,18 @@
 #pragma once
 
 // large portions lifted and adapted from Arduino
+// good reference here https://github.com/MetalPhreak/ESP8266_SPI_Driver/blob/master/driver/spi.c
+//   also
+// http://d.av.id.au/blog/hardware-spi-hspi-command-data-registers/
 
 extern "C" {
 
 #include "peri.h"
+#include "driver/gpio.h"
 #include "driver/spi_interface.h"
 #include "driver/spi_register.h"
 #include "esp_log.h"
+#include <string.h> // for memcpy
 
 }
 
@@ -24,15 +29,30 @@ struct spi_traits<SpiNum_HSPI>
     static void U1(uint32_t value) { SPI1U1 = value; }
     static uint32_t U1() { return SPI1U1; }
     static volatile uint32_t& CMD() { return SPI1CMD; }
+    static volatile uint32_t& C() { return SPI1C; }
+    static volatile uint32_t& U() { return SPI1U; }
+    static void U(uint32_t value) { SPI1U = value; }
+    static void C(uint32_t value) { SPI1C = value; }
+    static void C1(uint32_t value) { SPI1C1 = value; }
+
+    static void setup_pins()
+    {
+        PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDI_U, FUNC_HSPIQ_MISO);
+        PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDO_U, FUNC_HSPI_CS0);
+        PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTCK_U, FUNC_HSPID_MOSI);
+        PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTMS_U, FUNC_HSPI_CLK);
+    }
 };
 
 static const char* SPI_TAG = "layer1::SPI";
 
-template <SpiNum spi, class TSpiTraits = spi_traits<spi> >
+template <SpiNum spi, class TSpiTraits = spi_traits<spi>, class TPolicy = void >
 class SPI
 {
     typedef TSpiTraits spi_traits;
     typedef typename spi_traits::size_type size_type;
+    typedef TPolicy policy_type;
+
     static constexpr int fifo_size = 64;
 
     inline static void set_data_bits(uint16_t bits)
@@ -48,23 +68,32 @@ class SPI
         while(spi_traits::CMD() & SPIBUSY) {}        
     }
 
+    static void write_fifo_dummy_aligned(size_type size)
+    {
+        set_data_bits(size * 8);
+        uint32_t dataSize = ((size + 3) / 4);
+        volatile uint32_t* fifoPtr = &spi_traits::W0();
+
+        while(dataSize--)
+        {
+            *fifoPtr = 0xFFFFFFFF;
+            fifoPtr++;
+        }
+    }
 
     // demands byte aligned copy as well
     // TODO: Make this a non-inline function to avoid code bloat
     static void write_fifo_aligned(const void* source, size_type size)
     {
-        volatile uint32_t* fifoPtr = &spi_traits::W0();
+        set_data_bits(size * 8);
 
-        set_data_bits(size);
+        volatile uint32_t* fifoPtr = &spi_traits::W0();
 
         const uint32_t * dataPtr = (uint32_t*) source;
         uint32_t dataSize = ((size + 3) / 4);
 
-        while(dataSize--) {
-            *fifoPtr = *dataPtr;
-            dataPtr++;
-            fifoPtr++;
-        }
+        while(dataSize--)
+            *fifoPtr++ = *dataPtr++;
 
         __sync_synchronize();
         busy_wait();
@@ -72,6 +101,7 @@ class SPI
 
 
     // does not need to be 32-bit aligned
+    // also, as this is SPI, reads must follow writes
     static void read_fifo(uint8_t* dest, uint8_t size)
     {
         volatile uint8_t * fifoPtr8 = (volatile uint8_t *) &spi_traits::W0();
@@ -99,13 +129,74 @@ class SPI
             }
         }
     }
-
 public:
-    static void write8(uint8_t value)
+    static inline void write8(uint8_t value, bool wait = true)
     {
         set_data_bits(8);
         spi_traits::W0() = value;
+        if(wait)    busy_wait();
+    }
+
+
+private:
+    // only use this for small writes, up to 4 bytes max
+    static void write_unaligned(const uint8_t* source, uint8_t size)
+    {
+        set_data_bits(size * 8);
+
+        union 
+        {
+            uint32_t ensure_32_bit;
+            uint8_t s[4];
+        };
+
+        // FIX: Endianness is gonna follow CPU arch here, which I am pretty
+        // sure is big endian for xtensa
+        memcpy(s, source, size);
+
+        spi_traits::W0() = ensure_32_bit;
+    }
+
+    static int16_t read8()
+    {
+        return spi_traits::W0();
+    }
+
+    // must be 32-bit aligned [mainly output]
+    static void transfer_fifo(const uint8_t* out, uint8_t* in, uint8_t size)
+    {
+        if(out != nullptr)
+            write_fifo_aligned(out, size);
+        else
+            write_fifo_dummy_aligned(size);
+
         busy_wait();
+
+        if(in != nullptr)
+            read_fifo(out, size);
+    }
+
+public:
+    inline static void begin()
+    {
+        // TODO: set up pin modes also
+
+        spi_traits::setup_pins();
+
+        spi_traits::C(0);
+        spi_traits::U(SPIUMOSI | SPIUDUPLEX | SPIUSSE);
+        spi_traits::U1((7 << SPILMOSI) | (7 << SPILMISO));
+        spi_traits::C1(0);
+    }
+
+
+    // TODO: Utilize spi_endianness_t
+    inline static void set_order_msb(bool msb_first)
+    {
+        if(msb_first)
+            spi_traits::C() &= ~(SPICWBO | SPICRBO);
+        else
+            spi_traits::C() |= ~(SPICWBO | SPICRBO);
     }
 
     static void write(const void* source, size_type size)
@@ -115,16 +206,67 @@ public:
 
 //#ifdef DEBUG
         int extra = raw_addr % 4;
+        size -= extra;
         if(extra != 0)
         {
             // TODO: actually align these bytes
             ESP_LOGE(SPI_TAG, "Aligning bytes for write call ONLY in debug mode");
-            while(extra--)
-                write8(*s++);
+            write_unaligned(s, extra);
+            s += extra;
         }
 //#endif        
 
         write_aligned(s, size);
+    }
+
+    // must be 32-bit aligned
+    // TODO: Make this non-inline
+    static void transfer_aligned(const void* source, void* dest, size_type size)
+    {
+        const uint8_t* s = (const uint8_t*) source;
+        uint8_t* d = (uint8_t*) dest;
+
+        while(size > 0)
+        {
+            if(size > fifo_size)
+            {
+                transfer_fifo(s, d, fifo_size);
+
+                if(s != nullptr) s += fifo_size;
+                if(d != nullptr) d += fifo_size;
+
+                size -= fifo_size;
+            }
+            else
+            {
+                transfer_fifo(s, d, size);
+                size = 0;
+            }
+        }
+    }
+
+
+    static void transfer(const void* source, void* dest, size_type size)
+    {
+        const uint8_t* s = (const uint8_t*)source;
+        uint8_t* d = (uint8_t*)dest;
+        uint32_t raw_addr = (uint32_t)s;
+
+//#ifdef DEBUG
+        int extra = raw_addr % 4;
+        if(extra != 0)
+        {
+            // TODO: actually align these bytes
+            ESP_LOGE(SPI_TAG, "Aligning bytes for transfer call ONLY in debug mode");
+            while(extra--)
+            {
+                write8(*s++);
+                *d++ = read8();
+            }
+        }
+//#endif
+
+        transfer_aligned(s, d, size);
     }
 };
 
