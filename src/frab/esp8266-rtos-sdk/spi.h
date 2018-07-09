@@ -6,6 +6,9 @@
 // NOTE: Seems very, very likely they will be changing this to a more esp-idf API at some point
 // so be ready to check IDF_VER macro and dispatch accordingly
 
+// ultra low level, but good data here:
+// https://github.com/esp8266/Arduino/blob/master/libraries/SPI/SPI.cpp
+
 template <>
 class spi_context<SpiNum>
 {
