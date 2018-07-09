@@ -1,7 +1,9 @@
 #pragma once
 
 // works for mbed os *and* Arduino
+#if defined(__MBED__) || defined(ARDUINO)
 #include <SPI.h>
+#endif
 
 #if DEVICE_SPI_ASYNCH
 #include <platform/Callback.h>
@@ -40,6 +42,8 @@ public:
 };
 
 
+// TODO: Specialization is such we can move this out into the specific platform areas, don't need this
+// 2nd spi_context include
 #ifdef __MBED__
 
 template <>

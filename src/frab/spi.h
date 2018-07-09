@@ -1,6 +1,8 @@
 #pragma once
 
 #include "spi_context.h"
+#include <stdint.h> // for uint32_t and friends
+#include <stdlib.h> // for size_t
 
 namespace framework_abstraction {
 
@@ -85,6 +87,11 @@ public:
 #include "arduino/spi.hpp"
 #elif defined(ESP_OPEN_RTOS)
 #include "esp-open-rtos/spi.h"
+#elif defined(ESP_PLATFORM) && defined(ESP8266)
+#include "esp8266-rtos-sdk/spi.h"
+#else
+#error Unsupported Platform
+//#elif defined(ESP_PLATFORM) && defined(ESP32)
 #endif
 
 }
