@@ -1,0 +1,19 @@
+{
+    "name": "FrameworkAbstraction",
+    "keywords": "frab, hal",
+    "description": "simplistic HAL focused on speed and low-level over complete coverage",
+    "repository":
+    {
+        "type": "git",
+        "url": "https://github.com/malachib/framework.abstraction.git"
+    },
+    "authors":
+    [
+      {
+        "name": "Malachi Burke",
+        "maintainer": true
+      }
+    ],
+    "version": "0.1.0",
+    "platforms": "*"
+}

@@ -4,3 +4,6 @@
 [submodule "ext/Catch"]
 	path = ext/Catch
 	url = https://github.com/philsquared/Catch.git
+[submodule "ext/estdlib"]
+	path = ext/estdlib
+	url = https://github.com/malachi-iot/estdlib.git
