@@ -48,6 +48,10 @@ struct spi_traits<SpiNum_HSPI>
         PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTCK_U, FUNC_HSPID_MOSI);
         PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTMS_U, FUNC_HSPI_CLK);
     }
+
+    // experimental, this indicates a special data() method is available
+    // to access a FIFO (or perhaps DMA, on another chip) buffer
+    typedef void has_output_buffer_tag;
 };
 
 static const char* SPI_TAG = "layer1::SPI";
@@ -91,6 +95,7 @@ class SPI
     // TODO: Make this a non-inline function to avoid code bloat
     static void write_fifo_aligned(const void* source, size_type size)
     {
+        busy_wait();
         set_data_bits(size * 8);
 
         volatile uint32_t* fifoPtr = &spi_traits::W0();
@@ -102,7 +107,6 @@ class SPI
             *fifoPtr++ = *dataPtr++;
 
         __sync_synchronize();
-        busy_wait();
     }
 
 
@@ -138,9 +142,19 @@ class SPI
 public:
     static inline void write8(uint8_t value, bool wait = true)
     {
+        if(wait)    busy_wait();
         set_data_bits(8);
         spi_traits::W0() = value;
-        if(wait)    busy_wait();
+    }
+
+    // NOTE: this only interacts with the 'dout' area. remember esp8266 likes to
+    // transfer cmd+addr+dout.  So either set up your cmd+addr beforehand or
+    // disable them
+    uint8_t* data()
+    {
+        volatile uint8_t * fifoPtr8 = (volatile uint8_t *) &spi_traits::W0();
+
+        return fifoPtr8;
     }
 
 
