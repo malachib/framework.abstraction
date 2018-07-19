@@ -5,6 +5,9 @@
 //   also
 // http://d.av.id.au/blog/hardware-spi-hspi-command-data-registers/
 
+// FIX: nasty un-doing of framework_abstraction namespace
+}
+
 extern "C" {
 
 #include "peri.h"
@@ -15,6 +18,9 @@ extern "C" {
 #include <string.h> // for memcpy
 
 }
+
+// FIX: nasty re-doing of namespace (because we are included externally)
+namespace framework_abstraction {
 
 namespace layer1 {
 
