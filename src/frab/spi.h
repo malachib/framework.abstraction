@@ -1,5 +1,6 @@
 #pragma once
 
+#include <estd/internal/platform.h>
 #include "spi_context.h"
 #include <stdint.h> // for uint32_t and friends
 #include <stdlib.h> // for size_t
@@ -20,6 +21,17 @@ typedef enum _spi_endianness_t {
     SPI_LITTLE_ENDIAN = 0,
     SPI_BIG_ENDIAN
 } spi_endianness_t;
+
+// SPI traits shall include:
+// has_dma
+// has_fifo
+// has_blocking
+// has_async
+// 
+// for interaction with underlying driver.  Planned for frab to have an outer
+// driver and a specialized impl.  impl will only perform to the capabilities of the
+// chip, but the traits shall reveal what those capabilities are and the outer
+// driver will wrap those up into a more unified API
 
 /**
  * SPI bus settings
