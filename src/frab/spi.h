@@ -27,6 +27,13 @@ typedef enum _spi_endianness_t {
 // has_fifo
 // has_blocking
 // has_async
+// has_cmd_phase        - has discrete / optimized command phase
+// has_addr_phase       - has discrete / optimized address phase
+// has_transaction      - has transactional API (expected for any has_async)
+//
+// has_dma means following API is available:
+// - set_read_buffer
+
 // 
 // for interaction with underlying driver.  Planned for frab to have an outer
 // driver and a specialized impl.  impl will only perform to the capabilities of the
@@ -105,9 +112,10 @@ public:
 #include "esp-open-rtos/spi.h"
 #elif defined(ESP_PLATFORM) && defined(ESP8266)
 #include "esp8266-rtos-sdk/spi.h"
+#elif defined(ESP_PLATFORM) && defined(ESP32)
+#include "esp-idf/spi.h"
 #else
 #error Unsupported Platform
-//#elif defined(ESP_PLATFORM) && defined(ESP32)
 #endif
 
 }
