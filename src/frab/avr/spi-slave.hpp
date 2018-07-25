@@ -33,12 +33,20 @@ ISR (SPI_STC_vect)
 
 static void spi_slave_setup()
 {
+    using namespace framework_abstraction;
+
+    internal::port<spi_pins::port> port;
+
+    port.as_input(spi_pins::sck, spi_pins::mosi, spi_pins::cs);
+    port.as_output(spi_pins::miso);
+
     // This is AVR ATMega168/328 code - not sure if it will work properly
     // (especially pin select) for 32u4
-    DDRB &= ~((1<<2)|(1<<3)|(1<<5));   // SCK, MOSI and SS as inputs
+    //DDRB &= ~((1<<2)|(1<<3)|(1<<5));   // SCK, MOSI and SS as inputs
+
     // http://maxembedded.com/2013/11/the-spi-of-the-avr/#Advantages indicates
     // 1 << 6 should be output, so we do have differences between the AVRs
-    DDRB |= (1<<4);                    // MISO as output
+    //DDRB |= (1<<4);                    // MISO as output
 
     // turn on SPI in slave mode
     SPCR |= _BV(SPE);
