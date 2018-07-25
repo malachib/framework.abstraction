@@ -1,7 +1,9 @@
 #pragma once
 
 #include <stdint.h>
+#ifndef ARDUINO
 #include <new>
+#endif
 
 namespace framework_abstraction {
 

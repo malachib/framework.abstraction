@@ -11,10 +11,6 @@
 //  http://maxembedded.com/2013/11/the-spi-of-the-avr/#Advantages
 //  https://www.avrfreaks.net/forum/spi-atmega32u4-and-eeprom
 
-#ifndef FRAB_SPISLAVE_BUFFER_SIZE
-#define FRAB_SPISLAVE_BUFFER_SIZE 32
-#endif
-
 estd::layer1::queue<uint8_t, FRAB_SPISLAVE_BUFFER_SIZE> spi_slave_in;
 #ifdef FEATURE_FRAB_SPISLAVE_DUPLEX
 estd::layer1::queue<uint8_t, FRAB_SPISLAVE_BUFFER_SIZE> spi_slave_out;
