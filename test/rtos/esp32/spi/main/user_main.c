@@ -1,1 +1,1 @@
-../../template/user_main.c
+../../../template/freertos_main.c

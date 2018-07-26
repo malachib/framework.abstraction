@@ -3,6 +3,9 @@
 #include <estd/internal/platform.h>
 #include <estd/queue.h>
 
+#include "driver/spi_common.h"
+#include "driver/spi_master.h"
+
 namespace framework_abstraction {
 
 namespace driver {
@@ -57,7 +60,7 @@ public:
 
     void enqueue()
     {
-        spi_device_queue_trans()
+        spi_device_queue_trans(device, &transactions.front(), portMAX_DELAY);
     }
 };
 
@@ -82,9 +85,11 @@ struct spi_traits
 
     struct event
     {
-        static CONSTEXPR bool has_pre_tx = true;
-        typedef spi_transaction_t* pre_tx_parameter;
-        static void* context(pre_tx_parameter p) { return p->user; }
+        static CONSTEXPR bool has_sending = true;
+        static CONSTEXPR bool has_sent = true;
+        typedef spi_transaction_t* sending_parameter;
+        typedef spi_transaction_t* sent_parameter;
+        static void* context(sending_parameter p) { return p->user; }
     };
 };
 
