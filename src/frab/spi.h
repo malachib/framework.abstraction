@@ -111,7 +111,7 @@ public:
 #elif defined(ESP_OPEN_RTOS)
 #include "esp-open-rtos/spi.h"
 #elif defined(ESP_PLATFORM) && defined(ESP8266)
-#include "esp8266-rtos-sdk/spi.h"
+#include "esp8266-rtos-sdk/spi-raw.h"
 #elif defined(ESP_PLATFORM) && defined(ESP32)
 #include "esp-idf/spi.h"
 #else

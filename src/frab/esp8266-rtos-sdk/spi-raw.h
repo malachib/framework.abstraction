@@ -76,7 +76,7 @@ public:
     static void commit()
     {
         spi_traits::CMD() |= SPIBUSY;
-        // 90% sure these lines do the same thing
+        // 90% sure these lines do the same thing (initiates SPI command)
         SET_PERI_REG_MASK(SPI_CMD(spi), SPI_USR);
     }
     
