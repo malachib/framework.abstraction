@@ -62,6 +62,18 @@ public:
     {
         spi_device_queue_trans(device, &transactions.front(), portMAX_DELAY);
     }
+
+
+    // blocking version, do not use when using non blocking (async) version
+    void transfer(void* data, uint16_t len)
+    {
+        spi_transaction_t t;
+        memset(&t, 0, sizeof(t));
+        t.tx_buffer = data;
+        t.rx_buffer = data;
+        t.length = 8*len;
+        esp_err_t ret = spi_device_transmit(device, &t);
+    }
 };
 
 struct spi_traits

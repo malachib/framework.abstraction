@@ -44,14 +44,14 @@ typedef enum _spi_endianness_t {
  * SPI bus settings
  * (lifted directly from ESP-OPEN-RTOS), needs attention/adjustment.  Not used yet
  */
-struct
+struct spi_settings_t
 {
     spi_mode_t mode;              ///< Bus mode
     uint32_t freq_divider;        ///< Bus frequency as a divider. See spi_init()
     bool msb;                     ///< MSB first if true
     spi_endianness_t endianness;  ///< Bus byte order
     bool minimal_pins;            ///< Minimal set of pins if true. Spee spi_init()
-} spi_settings_t;
+};
 
 // TODO: implicitly a layer 2 class, break it out appropriately
 template <class TSPI>

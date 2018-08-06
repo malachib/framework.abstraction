@@ -1,4 +1,5 @@
 #include <frab/spi.h>
+#include <frab/gpio.h>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -17,4 +18,11 @@ void spi_test_1()
     spi2.write(buffer, sizeof(buffer) - 1);
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
+}
+
+void spi_test_ili9341()
+{
+    layer1::SPI<SpiNum_HSPI> spi2;
+
+    spi2.begin();
 }
