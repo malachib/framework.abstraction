@@ -72,12 +72,20 @@ class SPI
         spi_traits::U1(((spi_traits::U1() & mask) | ((bits << SPILMOSI) | (bits << SPILMISO))));
     }
 
-    static void busy_wait()
+public:
+    static void commit()
     {
         spi_traits::CMD() |= SPIBUSY;
+        // 90% sure these lines do the same thing
+        SET_PERI_REG_MASK(SPI_CMD(spi), SPI_USR);
+    }
+    
+    static void busy_wait(bool auto_commit = true)
+    {
         while(spi_traits::CMD() & SPIBUSY) {}        
     }
 
+private:
     static void write_fifo_dummy_aligned(size_type size)
     {
         set_data_bits(size * 8);
@@ -107,6 +115,7 @@ class SPI
             *fifoPtr++ = *dataPtr++;
 
         __sync_synchronize();
+        commit();
     }
 
 
@@ -145,6 +154,7 @@ public:
         if(wait)    busy_wait();
         set_data_bits(8);
         spi_traits::W0() = value;
+        commit();
     }
 
     // NOTE: this only interacts with the 'dout' area. remember esp8266 likes to
@@ -190,6 +200,7 @@ private:
         else
             write_fifo_dummy_aligned(size);
 
+        commit();
         busy_wait();
 
         if(in != nullptr)
