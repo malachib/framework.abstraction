@@ -1,0 +1,10 @@
+menu "GPIO tester config"
+
+config TEST_GPIO
+    int "Which GPIO to toggle on and off"
+
+config TOGGLE_FREQUENCY
+    int "Frequency (in ms) which to toggle GPIO"
+    default 1000
+
+endmenu
