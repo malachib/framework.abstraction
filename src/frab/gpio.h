@@ -83,11 +83,11 @@ struct gpio_traits
 };
 
 
-#elif defined(ESP_PLATFORM)
+#elif defined(ESP_PLATFORM) || defined(ESP_IDF_VER)
 
 struct gpio_traits
 {
-#ifdef ESP32
+#if defined(ESP32) || (ESTD_IDF_VER > ESTD_IDF_VER_2_0_0_644)
     typedef gpio_num_t pin_t;
 #else   // FIX: deducing ESP8266
     typedef uint8_t pin_t;
