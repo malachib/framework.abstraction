@@ -44,7 +44,7 @@ struct digital_out : public digital_out_base<pin>
     }
 };
 
-
+#ifdef ESP32
 template<gpio_num_t pin, bool open_drain = false>
 class digital_io :
     public digital_in_base<pin>,
@@ -57,7 +57,7 @@ public:
             (open_drain ? GPIO_MODE_DEF_OD : 0));
     }
 };
-
+#endif
 
 }
 

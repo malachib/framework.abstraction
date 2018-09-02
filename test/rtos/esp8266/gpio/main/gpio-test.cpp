@@ -1,5 +1,8 @@
 #include <estd/port/identify_platform.h>
 
+// This is necessary as it picks up the sdkconfig.h during ESP8266 compile
+#include "freertos/FreeRTOS.h"
+
 #include <frab/gpio.h>
 
 

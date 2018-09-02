@@ -6,6 +6,9 @@
 #include <driver/gpio.h>
 #endif
 
+// ESP8266 conforms more to esp-idf around this version
+#define ESTD_IDF_VER_3_0_0  ESTD_BUILD_IDF_VER(3, 0, 0, 0)
+
 namespace framework_abstraction {
 
 struct gpio
@@ -37,7 +40,7 @@ struct gpio
         input = ::gpio_direction_t::GPIO_INPUT,
         output = ::gpio_direction_t::GPIO_OUTPUT
     };
-#elif (defined(ESP32) || (ESTD_IDF_VER > ESTD_IDF_VER_2_0_0_644)) && defined(IDF_VER)
+#elif (defined(ESP32) || (ESTD_IDF_VER > ESTD_IDF_VER_3_0_0)) && defined(IDF_VER)
 // pretty sure this only comes here in the PIO variant.  Don't know how to
 // determine ESP32 vs ESP8266 IDF yet
     enum direction_t
@@ -87,7 +90,7 @@ struct gpio_traits
 
 struct gpio_traits
 {
-#if defined(ESP32) || (ESTD_IDF_VER > ESTD_IDF_VER_2_0_0_644)
+#if defined(ESP32) || (ESTD_IDF_VER > ESTD_IDF_VER_3_0_0)
     typedef gpio_num_t pin_t;
 #else   // FIX: deducing ESP8266
     typedef uint8_t pin_t;
@@ -160,7 +163,7 @@ protected:
 };
 
 
-namespace layer1 {
+namespace layer0 {
 
 // "easy" version when pin_t and context_in_t and context_out_t all map to the
 // same thing
@@ -236,7 +239,7 @@ public:
 #include "mbed/gpio.h"
 #elif defined(ESP_OPEN_RTOS)
 #include "esp-open-rtos/gpio.h"
-#elif defined(ESP_PLATFORM) && (defined(ESP32) || (ESTD_IDF_VER > ESTD_IDF_VER_2_0_0_644))
+#elif defined(ESP_PLATFORM) && (defined(ESP32) || (ESTD_IDF_VER > ESTD_IDF_VER_3_0_0))
 #include "esp-idf/gpio.h"
 #elif defined(ESP_PLATFORM) // FIX: deduced ESP8266, but shaky
 #include "esp8266-rtos-sdk/gpio.h"
