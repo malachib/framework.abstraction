@@ -8,7 +8,7 @@ extern "C" {
 
 namespace framework_abstraction {
 
-namespace layer1 {
+namespace layer0 {
 
 namespace internal {
 

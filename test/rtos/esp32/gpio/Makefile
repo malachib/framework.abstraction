@@ -3,7 +3,7 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := spi
+PROJECT_NAME := gpio
 
 # frab wants this
 EXTRA_CPPFLAGS := -DESP32

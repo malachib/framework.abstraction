@@ -20,7 +20,7 @@ inline void digital_out_base_new<>::write(context_reference context, value_t val
     gpio_set_level(context, value);
 }
 
-namespace layer1 {
+namespace layer0 {
 
 
 template<gpio_num_t pin, bool open_drain = false>
