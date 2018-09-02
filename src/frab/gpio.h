@@ -37,7 +37,7 @@ struct gpio
         input = ::gpio_direction_t::GPIO_INPUT,
         output = ::gpio_direction_t::GPIO_OUTPUT
     };
-#elif defined(ESP32) && defined(IDF_VER)
+#elif (defined(ESP32) || (ESTD_IDF_VER > ESTD_IDF_VER_2_0_0_644)) && defined(IDF_VER)
 // pretty sure this only comes here in the PIO variant.  Don't know how to
 // determine ESP32 vs ESP8266 IDF yet
     enum direction_t
@@ -236,7 +236,7 @@ public:
 #include "mbed/gpio.h"
 #elif defined(ESP_OPEN_RTOS)
 #include "esp-open-rtos/gpio.h"
-#elif defined(ESP_PLATFORM) && defined(ESP32)
+#elif defined(ESP_PLATFORM) && (defined(ESP32) || (ESTD_IDF_VER > ESTD_IDF_VER_2_0_0_644))
 #include "esp-idf/gpio.h"
 #elif defined(ESP_PLATFORM) // FIX: deduced ESP8266, but shaky
 #include "esp8266-rtos-sdk/gpio.h"
