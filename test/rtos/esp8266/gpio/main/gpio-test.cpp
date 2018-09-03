@@ -8,8 +8,12 @@
 
 using namespace framework_abstraction;
 
+// NOTE: using gpio_traits directly not really how C++ libs usually
+// do things.
+CONSTEXPR pin_t led_gpio = gpio_traits::to_pin(CONFIG_TEST_GPIO);
+
 // TODO: find a way to avoid this typecast (required during esp32 compile)
-layer0::digital_out<(gpio_num_t)CONFIG_TEST_GPIO> led;
+layer0::digital_out<led_gpio> led;
 
 void toggle()
 {

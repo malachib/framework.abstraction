@@ -1,5 +1,7 @@
 #pragma once
 
+#include <estd/internal/platform.h>
+
 #ifdef __MBED__
 #include <mbed.h>
 #elif defined(ESP_PLATFORM)
@@ -75,8 +77,6 @@ struct gpio
 };
 
 #ifdef __MBED__
-typedef PinName pin_t;
-
 struct gpio_traits
 {
     typedef PinName pin_t;
@@ -98,13 +98,13 @@ struct gpio_traits
     typedef pin_t context_in_t;
     typedef pin_t context_out_t;
     typedef int value_t;
+
+    // experimental
+    static CONSTEXPR pin_t to_pin(int int_pin_value) { return (pin_t) int_pin_value; }
 };
 
-typedef gpio_traits::pin_t pin_t;
 
 #else
-typedef int pin_t;
-
 struct gpio_traits
 {
     typedef int pin_t;
@@ -113,6 +113,8 @@ struct gpio_traits
     typedef int value_t;
 };
 #endif
+
+typedef gpio_traits::pin_t pin_t;
 
 template <class TTraits>
 class digital_in_base
