@@ -26,6 +26,8 @@ public:
     }
 
     inline static gpio_type read() { return level(); }
+
+    operator bool() const { return level(); }
 };
 
 template<pin_t pin, bool init = false>
@@ -47,6 +49,12 @@ public:
     }
 
     inline static void write(const gpio_type set) { level(set); }
+
+    digital_out& operator=(const gpio_type set)
+    {
+        write(set);
+        return *this;
+    }
 };
 
 
