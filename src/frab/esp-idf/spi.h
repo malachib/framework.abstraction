@@ -65,12 +65,14 @@ public:
 
 
     // blocking version, do not use when using non blocking (async) version
-    void transfer(void* data, uint16_t len)
+    // among other things, spi_transaction_t does not last past the scope
+    // of this call
+    void transfer(const void* in, void* out, uint16_t len)
     {
         spi_transaction_t t;
         memset(&t, 0, sizeof(t));
-        t.tx_buffer = data;
-        t.rx_buffer = data;
+        t.tx_buffer = out;
+        t.rx_buffer = in;
         t.length = 8*len;
         esp_err_t ret = spi_device_transmit(device, &t);
     }
@@ -106,5 +108,15 @@ struct spi_traits
 };
 
 }
+
+/*
+ * This is more of a layer1 thing, but the 'host' hardwiring is layer0
+ * so deliberate a bit more before committing
+namespace layer0 {
+
+template <spi_host_device_t host, class TPolicy = driver::spi_policy>
+using SPI = driver::SPI<host, TPolicy>;
+
+} */
 
 }
