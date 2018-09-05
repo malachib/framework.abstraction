@@ -8,7 +8,7 @@ namespace framework_abstraction {
 typedef uint8_t pin_t;
 typedef bool gpio_type;
 
-namespace layer1 {
+namespace layer0 {
 
 template<pin_t pin>
 class digital_in
@@ -38,4 +38,9 @@ public:
 
 
 }
+
+namespace layer1 {
+
+}
+
 }
