@@ -1,15 +1,23 @@
 #pragma once
 
+// indicating include was initiated from 'global' (frab/gpio.h) instead of
+// platform specific one
+#define FRAB_EXPERIMENTAL_GLOBAL_GPIO
+
 #include <estd/internal/platform.h>
 
 #ifdef __MBED__
 #include <mbed.h>
 #elif defined(ESP_PLATFORM)
 #include <driver/gpio.h>
-#endif
 
 // ESP8266 conforms more to esp-idf around this version
 #define ESTD_IDF_VER_3_0_0  ESTD_BUILD_IDF_VER(3, 0, 0, 0)
+
+#elif defined(ATMEL_ASF)    // defined by our own makefile setup
+#endif
+
+#include "base/gpio.h"
 
 namespace framework_abstraction {
 
@@ -71,6 +79,8 @@ struct gpio
         input = GPIO_Mode_Input,
         output = GPIO_Mode_Output
     };
+#elif defined(ATMEL_ASF)
+
 #else
 #error Unsupported Architecture
 #endif
@@ -138,32 +148,6 @@ public:
     gpio_type write();
     static void write(typename traits_t::context_t& context, gpio_type value);
 };
-
-// "easy" version when pin_t and context_in_t and context_out_t all map to the
-// same thing
-template<class TTraits = gpio_traits>
-class digital_in_base_new //: public framework_abstraction::digital_in_base<TTraits>
-{
-    typedef typename TTraits::context_in_t context_t;
-    typedef const context_t& context_reference;
-    typedef typename TTraits::value_t value_t;
-
-protected:
-    static value_t read(context_reference context);
-};
-
-
-template<class TTraits = gpio_traits>
-class digital_out_base_new //: public framework_abstraction::digital_out_base<TTraits>
-{
-    typedef typename TTraits::context_out_t context_t;
-    typedef const context_t& context_reference;
-    typedef typename TTraits::value_t value_t;
-
-protected:
-    static void write(context_reference context, value_t value);
-};
-
 
 namespace layer0 {
 
@@ -245,6 +229,8 @@ public:
 #include "esp-idf/gpio.h"
 #elif defined(ESP_PLATFORM) // FIX: deduced ESP8266, but shaky
 #include "esp8266-rtos-sdk/gpio.h"
+#elif defined(ATMEL_ASF)    // defined by our own makefile setup
+#include "atmel/asf/gpio.h"
 #elif defined(ARDUINO)
 //#include "arduino/gpio.h"
 #endif
