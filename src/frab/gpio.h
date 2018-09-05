@@ -121,6 +121,11 @@ struct gpio_traits
     typedef pin_t context_in_t;
     typedef pin_t context_out_t;
     typedef int value_t;
+
+    static CONSTEXPR bool is_valid_pin(pin_t pin)
+    {
+        return pin >= 0;
+    }
 };
 #endif
 
