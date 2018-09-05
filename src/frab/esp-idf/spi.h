@@ -37,6 +37,11 @@ class SPI
 public:
     void set_command(uint16_t cmd, uint8_t command_bits );
 
+    static void bus_initialize(spi_bus_config_t& config, int dma_chan)
+    {
+        spi_bus_initialize(host, &config, dma_chan);
+    }
+
     void add_device(spi_device_interface_config_t& config)
     {
         spi_bus_add_device(host, &config, &device);
@@ -75,6 +80,33 @@ public:
         t.rx_buffer = in;
         t.length = 8*len;
         esp_err_t ret = spi_device_transmit(device, &t);
+    }
+
+
+    // totally untested
+    uint8_t transfer8(uint8_t value)
+    {
+        // Usage of SPI_USE_TXDATA is ambiguous.  They only imply
+        // that the flag is set with t.flags
+        spi_transaction_t t;
+
+        memset(&t, 0, sizeof(t));
+
+        t.flags |= SPI_TRANS_USE_TXDATA | SPI_TRANS_USE_RXDATA;
+        t.tx_data[0] = value;
+        t.length = 8; // 8 bits
+
+        esp_err_t ret = spi_device_transmit(device, &t);
+
+        return t.rx_data[0];
+    }
+
+
+    // totally untested
+    // if it works, consider optimizing by dumping rx phase
+    void write8(uint8_t value)
+    {
+        transfer8(value);
     }
 };
 
