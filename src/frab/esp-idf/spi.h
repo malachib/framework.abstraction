@@ -6,6 +6,8 @@
 #include "driver/spi_common.h"
 #include "driver/spi_master.h"
 
+#include "../base/spi.h"
+
 namespace framework_abstraction {
 
 namespace driver {
@@ -21,18 +23,57 @@ struct spi_policy
     typedef estd::layer1::queue<spi_transaction_t, 4> tx_queue_type;
 };
 
+
+/*
+template <spi_host_device_t host>
+struct SPI
+{
+
+}; */
+
+
 // TODO: break out async and blocking API so that someone can make a 
 // version which doesn't demand a transacations queue sitting around
 // NOTE: This is actually shaping up to be a 'spi device' class, in which
 // case 'host' template parameter will go away
 template <spi_host_device_t host, class TPolicy = spi_policy>
-class SPI
+class SPI : 
+    protected TPolicy
 {
+    typedef TPolicy policy_base;
     typedef typename TPolicy::tx_queue_type tx_queue_type;
-    tx_queue_type transactions;
+    tx_queue_type _transactions;
+    tx_queue_type& transactions() { return _transactions; }
     spi_device_handle_t device;
 
-    spi_transaction_t& back() { return transactions.back(); }
+    spi_transaction_t& back() { return transactions().back(); }
+
+    // proof of concept for interaction with embr subject/observer
+    // code
+    template <class TNotify>
+    static void do_notify(const TNotify&)
+    {
+        // TODO: put subject.do_notify here
+    }
+
+    static void pre_cb(spi_transaction_t* t)
+    {
+        event_tx_begin_experimental e;
+
+        e.context = t->user;
+
+        do_notify(e);
+    }
+
+
+    static void post_cb(spi_transaction_t* t)
+    {
+        event_tx_end_experimental e;
+
+        e.context = t->user;
+
+        do_notify(e);
+    }
 
 public:
     void set_command(uint16_t cmd, uint8_t command_bits );
@@ -42,8 +83,14 @@ public:
         spi_bus_initialize(host, &config, dma_chan);
     }
 
-    void add_device(spi_device_interface_config_t& config)
+    void add_device(spi_device_interface_config_t& config, bool set_exp_callbacks = true)
     {
+        if(set_exp_callbacks)
+        {
+            config.post_cb = &post_cb;
+            config.pre_cb = &pre_cb;
+        }
+
         spi_bus_add_device(host, &config, &device);
     }
 
@@ -65,7 +112,7 @@ public:
 
     void enqueue()
     {
-        spi_device_queue_trans(device, &transactions.front(), portMAX_DELAY);
+        spi_device_queue_trans(device, &transactions().front(), portMAX_DELAY);
     }
 
 
@@ -143,7 +190,8 @@ struct spi_traits
 
 /*
  * This is more of a layer1 thing, but the 'host' hardwiring is layer0
- * so deliberate a bit more before committing
+ * so deliberate a bit more before committing.  Remember though, 'host'
+ * itself is barely used and could be relegated to distinct API calls
 namespace layer0 {
 
 template <spi_host_device_t host, class TPolicy = driver::spi_policy>
