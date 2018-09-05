@@ -24,20 +24,12 @@ struct spi_policy
 };
 
 
-/*
-template <spi_host_device_t host>
-struct SPI
-{
-
-}; */
-
-
 // TODO: break out async and blocking API so that someone can make a 
 // version which doesn't demand a transacations queue sitting around
 // NOTE: This is actually shaping up to be a 'spi device' class, in which
 // case 'host' template parameter will go away
-template <spi_host_device_t host, class TPolicy = spi_policy>
-class SPI : 
+template <class TPolicy = spi_policy>
+class SPI_device : 
     protected TPolicy
 {
     typedef TPolicy policy_base;
@@ -78,12 +70,7 @@ class SPI :
 public:
     void set_command(uint16_t cmd, uint8_t command_bits );
 
-    static void bus_initialize(spi_bus_config_t& config, int dma_chan)
-    {
-        spi_bus_initialize(host, &config, dma_chan);
-    }
-
-    void add_device(spi_device_interface_config_t& config, bool set_exp_callbacks = true)
+    void add_device(spi_host_device_t host, spi_device_interface_config_t& config, bool set_exp_callbacks = true)
     {
         if(set_exp_callbacks)
         {
@@ -155,7 +142,30 @@ public:
     {
         transfer8(value);
     }
+
+    operator spi_device_handle_t() const { return device; }
 };
+
+
+template <spi_host_device_t host>
+struct SPI_bus
+{
+    static void initialize(spi_bus_config_t& config, int dma_chan)
+    {
+        spi_bus_initialize(host, &config, dma_chan);
+    }
+
+    template <class TPolicy>
+    static void add(SPI_device<TPolicy>& d, spi_device_interface_config_t& config)
+    {
+        d.add_device(host, config);
+    }
+
+    operator spi_host_device_t() const { return host; }
+};
+
+
+
 
 struct spi_traits
 {

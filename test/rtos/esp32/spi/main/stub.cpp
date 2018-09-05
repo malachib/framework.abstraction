@@ -8,7 +8,8 @@ using namespace framework_abstraction;
 // https://github.com/espressif/esp-idf/blob/master/docs/en/api-reference/peripherals/spi_master.rst
 
 //static layer0::SPI<HSPI_HOST> spi;
-static driver::SPI<HSPI_HOST> spi;
+static driver::SPI_bus<HSPI_HOST> spi;
+static driver::SPI_device<> spi_device;
 
 #define PIN_NUM_MISO 25
 #define PIN_NUM_MOSI 23
@@ -46,8 +47,8 @@ extern "C" void test_task(void*)
     devcfg.queue_size=7;                          //We want to be able to queue 7 transactions at a time
     devcfg.pre_cb=dummy_spi_pre_transfer_callback;  //Specify pre-transfer callback to handle D/C line
 
-    spi.bus_initialize(buscfg, 1);
-    spi.add_device(devcfg);
+    spi.initialize(buscfg, 1);
+    spi.add(spi_device, devcfg);
 
     for(;;)
     {
